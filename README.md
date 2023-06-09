@@ -4,6 +4,8 @@
 ![2](img/fbp_lineprofile.png)
 
 ## SIRT
+$$x^{(k+1)} = x^{(k)} + \lambda \cdot A^T \cdot (b - A \cdot x^{(k)})$$
+
 ### system_matix_type='binary'
 ![3](img/sirt_binary.png)
 ![4](img/sirt_binary_lineprofile.png)
