@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pydicom
 from PIL import Image
-# from SIRT import lineProfile
 
 def lineProfile(height, img, reconImg):
     line_profile = np.array(img)[height, :]
@@ -49,8 +48,6 @@ x_rec = np.zeros(A.domain_shape, dtype=np.float32)
 
 # Print shape of x_rec, A(x_rec), and y
 print(A.domain_shape)
-
-
 
 for i in range(num_iterations):
     x_rec += C * A.T(R * (y - A(x_rec)))

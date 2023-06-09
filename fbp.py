@@ -54,9 +54,6 @@ def filterProj2(sinogram,a=0.1):
         filter_projfft = projfft * ramp_filter  # *ramp_filter
         filter_proj = np.real(ifft(filter_projfft))  # inverse Fourier transform
         filter_sinogram[:, i] = filter_proj
-    plt.imshow(filter_sinogram, cmap='gray')
-    plt.title("filter_sinogram")
-    plt.show()
     return filter_sinogram
 
 def backPorj(filter_sinogram, theta):
@@ -87,9 +84,6 @@ def backPorj(filter_sinogram, theta):
         # plt.title('Image {}'.format(n))
         # plt.show()
     reconImg = Image.fromarray((reconImg - np.min(reconImg)) / np.ptp(reconImg) * 255)  # normilization
-    fig = plt.imshow(reconImg)
-    plt.title('reconImg')
-    plt.show()
     return reconImg
 
 def lineProfile(height, img, reconImg):
@@ -107,9 +101,9 @@ def lineProfile(height, img, reconImg):
 
 if __name__ == '__main__':
 
-    # generate output logging
-    logging.basicConfig(filename='output.log', level=logging.DEBUG)
-    logger = logging.getLogger(__name__)
+    # # generate output logging
+    # logging.basicConfig(filename='output.log', level=logging.DEBUG)
+    # logger = logging.getLogger(__name__)
 
     # --------------------------------------------------Load data----------------------------------------------------------
     dcm = pydicom.dcmread('1.2.826.0.1.3680043.5876/1.dcm')
@@ -118,33 +112,48 @@ if __name__ == '__main__':
     # img = (img - np.min(img)) / np.ptp(img) * 255
     # img = img.astype(np.uint8)
     # img = Image.fromarray(img)
-
-    logger.debug(f"Original_img: {img}")
-    plt.imshow(img, cmap='gray')
-    plt.title("original_image")
-    plt.show()
+    # logger.debug(f"Original_img: {img}")
 
     # -----------------------------------------------Forward Projection-----------------------------------------------------
     # Define rotation angle and the number of rotation
     numAngles = 720
     theta = np.linspace(0., 180., numAngles, endpoint=False)
     sinogram = getProj(img, theta)
-    logger.debug(f"sinogram: {sinogram}")
+    # logger.debug(f"sinogram: {sinogram}")
 
     # -----------------------------------------------sinogram filteration---------------------------------------------------
     filter_sinogram=filterProj2(sinogram)
-    logger.debug(f"filter_sinogram: {filter_sinogram}")
+    # logger.debug(f"filter_sinogram: {filter_sinogram}")
 
     # --------------------------------------------- Back Projection/ Recon -------------------------------------------------
     reconImg = backPorj(filter_sinogram, theta)
-    logger.debug(f"reconImg: {reconImg}")
+    # logger.debug(f"reconImg: {reconImg}")
+
+    # Calculate PSNR
+    reconImg_array=np.array(reconImg)
+    img_array=np.array(img)
+    mse = np.mean((reconImg_array - img_array) ** 2)
+    psnr = 10 * np.log10((255 ** 2) / mse)
+    print("PSNR: {:.2f} dB".format(psnr))
+
+    # Plot original image and reconstructed image
+    plt.figure(figsize=(8, 4))
+    plt.subplot(121)
+    plt.imshow(img, cmap='gray')
+    plt.title("Original Image")
+    plt.axis('off')
+    plt.subplot(122)
+    plt.imshow(reconImg, cmap='gray')
+    fig = plt.imshow(reconImg)
+    plt.title("FBP_Recon Image (PSNR: {:.2f} dB)".format(psnr))
+    plt.axis('off')
+    plt.show()
 
     # generate lineProfile
     lineProfile(200,img,reconImg)
 
-
     # Load logging
-    with open('output.log', 'r') as f:
-        content = f.readlines()
-        print(content)
+    # with open('output.log', 'r') as f:
+    #     content = f.readlines()
+    #     print(content)
 
